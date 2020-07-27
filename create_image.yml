@@ -1,0 +1,11 @@
+---
+- name: Create web image
+  become: true
+  hosts: ubuntuRemote
+  tasks:
+    - name: Build an image and push it to a private repo
+      docker_image:
+        build:
+          path: /home/bhagyashri/devops_test
+        name: webimage
+        source: build 

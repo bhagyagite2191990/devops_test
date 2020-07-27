@@ -1,0 +1,76 @@
+---
+
+- hosts: all
+  become: true
+  vars:
+    create_containers: 4
+    default_container_name: docker
+    default_container_image: mmumshad/simple-webapp-color
+    #default_container_command: sleep 100s
+    docker_set:
+      - port: 8081
+        color: red
+      - port: 8082
+        color: blue
+      - port: 8083
+        color: green
+      - port: 8084
+        color: pink
+
+
+
+
+  tasks:
+    - name: Install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+
+    - name: Pull default Docker image
+      docker_image:
+        name: "{{ default_container_image }}"
+        source: pull
+
+    - name: Create default containers and expose_ports
+      docker_container:
+        name: "{{ default_container_name }}_{{ item.color }}"
+        image: "{{ default_container_image }}"
+        #command: "{{ default_container_command }}"
+        state: started
+        interactive: yes
+        published_ports:
+            - "{{ item.port }}:8080"
+        detach: yes
+        env:
+            -APP_COLOR: "{{ item.color }}"
+
+      with_items: "{{ docker_set }}"
+
+    - name: Get infos on container
+      docker_container_info:
+          name: "{{ default_container_name }}_{{ item.color }}"
+          register: result
+      with_items: "{{ docker_set }}"
+    - name: expose posrts
+      debug:
+          msg="result of  docker container {{result.container}}"
+

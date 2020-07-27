@@ -1,0 +1,19 @@
+---
+- hosts: ubuntuRemote
+  become: true
+  vars:
+    default_container_name: img
+    default_container_image: ubuntu
+    default_container_command: /bin/bash
+
+  tasks: 
+    - name: Create default containers
+      docker_container:
+        name: "{{ default_container_name }}"
+        image: "{{ default_container_image }}"
+        command: "{{ default_container_command }}"
+        state: started
+        published_ports:
+        - "8080:8080"
+        tty: true
+        detach: true
