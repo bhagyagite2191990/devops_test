@@ -1,6 +1,6 @@
 ---
 
-- hosts: 192.168.0.106
+- hosts: ubuntuRemote
   become: true
   vars:
     create_containers: 4
