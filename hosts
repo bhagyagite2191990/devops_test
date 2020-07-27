@@ -1,1 +1,1 @@
-ubuntuRemote ansible_host=192.168.0.106 ansible_ssh_user=bhagyashri export ANSIBLE_HOST_KEY_CHECKING=False
+ubuntuRemote ansible_host=192.168.0.106 ansible_ssh_user=bhagyashri 
